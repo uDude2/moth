@@ -22,25 +22,22 @@ body {
     border: solid black 0.2em;
     border-radius: 1em 1em 0.5em 1em;
     overflow: auto;
-}
-
-.terminal p {
     padding: 0.25em 0.5em;
 }
 
 #overview, #messages {
-    width: 47%;
-    height: 20%;
+    height: calc(20% - 0.5em);
+    width: calc(47% - 1em);
 }
 
 #puzzles {
-    width: 24%;
-    height: 70%;
+    height: calc(70% - 0.5em);;
+    width: calc(24% - 1em);
 }
 
 #main {
-    width: 70%;
-    height: 70%;
+    height: calc(70% - 0.5em);
+    width: calc(70% - 1em);
 }
 
 h1 {

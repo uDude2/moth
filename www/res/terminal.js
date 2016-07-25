@@ -18,135 +18,140 @@ function Terminal(target, bps) {
     // So now it leaves the scrollbar in place, and the user has to scroll.
     // This is how the Plan 9 terminal (1991) works.
     function tx(pairs, bps, scroll) {
-	var drawTimer;
+        var drawTimer;
 
-	// Looks like EMCAScript 6 has a yield statement.
-	// That would make this mess a lot easier to understand.
+        // Looks like EMCAScript 6 has a yield statement.
+        // That would make this mess a lot easier to understand.
 
-	var pairIndex = 0;
-	var pair = pairs[0];
+        var pairIndex = 0;
+        var pair = pairs[0];
 
-	var textIndex = 0;
-	var text = "";
+        var textIndex = 0;
+        var text = "";
 
-	function draw() {
-	    var node = pair[0];
-	    var src = pair[1];
-	    var c = src[textIndex];
+        function draw() {
+            if (! pair) {
+                clearInterval(drawTimer);
+                return;
+            }
+            
+            var node = pair[0];
+            var src = pair[1];
+            var c = src[textIndex];
 
-	    text += c;
-	    node.textContent = text;
+            text += c;
+            node.textContent = text;
 
-	    textIndex += 1;
-	    if (textIndex == src.length) {
-		textIndex = 0;
-		text = "";
+            textIndex += 1;
+            if (textIndex == src.length) {
+                textIndex = 0;
+                text = "";
 
-		pairIndex += 1;
-		if (pairIndex == pairs.length) {
-		    clearInterval(drawTimer);
-		    return;
-		}
-		pair = pairs[pairIndex];
-	    }
+                pairIndex += 1;
+                if (pairIndex == pairs.length) {
+                    clearInterval(drawTimer);
+                    return;
+                }
+                pair = pairs[pairIndex];
+            }
 
-	    if (scroll) {
-		node.scrollIntoView();
-	    }
-	}
+            if (scroll) {
+                node.scrollIntoView();
+            }
+        }
 
-	// N81 uses 1 stop bit, and 1 parity bit.
-	// That works out to exactly 10 bits per byte.
-	msec = 10000 / bps;
-	
-	drawTimer = setInterval(draw, msec);
-	draw();
+        // N81 uses 1 stop bit, and 1 parity bit.
+        // That works out to exactly 10 bits per byte.
+        msec = 10000 / bps;
+        
+        drawTimer = setInterval(draw, msec);
+        draw();
     }
 
 
     function start() {
-	if (! outTimer) {
-	    outTimer = setInterval(drawElement, 75);
-	}
+        if (! outTimer) {
+            outTimer = setInterval(drawElement, 75);
+        }
     }
 
 
     function stop() {
-	if (outTimer) {
-	    clearInterval(outTimer);
-	    outTimer = null;
-	}
+        if (outTimer) {
+            clearInterval(outTimer);
+            outTimer = null;
+        }
     }
 
     
     function drawElement() {
-	var pairs = outq.shift();
+        var pairs = outq.shift();
 
-	if (! pairs) {
-	    stop();
-	    return;
-	}
+        if (! pairs) {
+            stop();
+            return;
+        }
 
-	tx(pairs, bps);
+        tx(pairs, bps);
     }
 
 
     function prepare(element) {
-	var pairs = [];
+        var pairs = [];
 
-	walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
-	while (walker.nextNode()) {
-	    var node = walker.currentNode;
-	    var text = node.textContent;
+        walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+        while (walker.nextNode()) {
+            var node = walker.currentNode;
+            var text = node.textContent;
 
-	    node.textContent = "";
-	    pairs.push([node, text]);
-	}
+            node.textContent = "";
+            pairs.push([node, text]);
+        }
 
-	return pairs;
+        return pairs;
     }
-	
+        
 
     // The main entry point: works like appendChild
     this.append = function(element) {
-	pairs = prepare(element);
-	target.appendChild(element);
-	outq.push(pairs);
-	start();
+        pairs = prepare(element);
+        target.appendChild(element);
+        outq.push(pairs);
+        start();
     }
 
 
     // A cool effect where it despools children in parallel
     this.appendShallow = function(element) {
-	for (var child of element.childNodes) {
-	    pairs = prepare(child);
-	    outq.push(pairs);
-	}
-	target.appendChild(element);
-	start();
+        for (var child of element.childNodes) {
+            pairs = prepare(child);
+            outq.push(pairs);
+        }
+        target.appendChild(element);
+        start();
     }
 
 
     this.clear = function() {
-	stop();
-	outq = [];
-	while (target.firstChild) {
-	    target.removeChild(target.firstChild);
-	}
+        stop();
+        outq = [];
+        while (target.firstChild) {
+            target.removeChild(target.firstChild);
+        }
     }
 
 
     this.par = function(txt) {
-	var e = document.createElement("p");
-	e.textContent = txt;
-	this.append(e);
+        var e = document.createElement("p");
+        e.textContent = txt;
+        this.append(e);
     }
 
 
     this.pre = function(txt) {
-	var e = document.createElement("pre");
-	e.textContent = txt;
-	this.append(e);
+        var e = document.createElement("pre");
+        e.textContent = txt;
+        this.append(e);
     }
 }
 
