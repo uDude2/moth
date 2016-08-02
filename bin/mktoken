@@ -1,0 +1,72 @@
+#!/usr/bin/python3
+
+import random
+
+class BubbleBabble:
+    consonants = 'bcdfghklmnprstvz'
+    vowels = 'aeiouy'
+
+    def __init__(self):
+        self.seed = 1
+        self.out = ["x"]
+        self.even = True
+
+    def update(self, buf):
+        for c in buf:
+            if self.even:
+                self.out.append(self.vowels[(((c >> 6) & 3) + self.seed) % 6])
+                self.out.append(self.consonants[(c >> 2) & 15])
+                self.out.append(self.vowels[((c & 3) + (self.seed // 6)) % 6])
+                self.seed = (self.seed * 5) + (c * 7)
+            else:
+                self.seed = (self.seed + c) % 36
+                self.out.append(self.consonants[(c >> 4) & 15])
+                self.out.append('-')
+                self.out.append(self.consonants[(c & 15)])
+            self.even = not self.even
+        return self
+
+    def digest(self):
+        out = self.out[:]
+        if self.even:
+            out.append(self.vowels[self.seed % 6])
+            out.append('x')
+            out.append(self.vowels[self.seed // 6])
+        out.append('x')
+        return ''.join(out)
+
+def mktoken(cat, points=1):
+    # We use 5 octets, for 40 bits of entropy.
+    # 40 bits is nowhere near enough for strong crypto,
+    # but it's a big-enough keyspace for a 1-week contest.
+    octets = [random.randrange(256) for i in range(5)]
+    digest = BubbleBabble().update(octets).digest()
+    return '{}:{}:{}'.format(cat, points, digest)
+
+if __name__ == '__main__':
+    import argparse
+
+    parser = argparse.ArgumentParser("Generate some tokens")
+    parser.add_argument(
+        "-n",
+        "--count",
+        type=int,
+        default=1,
+        help="How many tokens to generate"
+    )
+    parser.add_argument(
+        "-p",
+        "--points",
+        type=int,
+        default=1,
+        help="How many points to make the token worth"
+    )
+    parser.add_argument(
+        "category",
+        help="Category for this token"
+    )
+    args = parser.parse_args()
+
+    for i in range(args.count):
+        print(mktoken(args.category, args.points))
+
