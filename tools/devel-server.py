@@ -57,7 +57,9 @@ def mdpage(body):
     return page(title, mistune.markdown(body, escape=False))
 
 
-class ThreadingServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
+# XXX: What horrors did we unleash with our chdir shenanigans that
+# makes this serve 404 and 500 when we mix in ThreadingMixIn?
+class ThreadingServer(socketserver.ForkingMixIn, http.server.HTTPServer):
     pass
 
 
@@ -149,7 +151,7 @@ you are a fool.
             # List all point values in a category
             title = "Puzzles in category `{}`".format(parts[2])
             body.write("<ul>")
-            for points in cat.pointvals:
+            for points in cat.pointvals():
                 body.write('<li><a href="/puzzles/{cat}/{points}/">puzzles/{cat}/{points}/</a></li>'.format(cat=parts[2], points=points))
             body.write("</ul>")
         elif len(parts) == 4:
