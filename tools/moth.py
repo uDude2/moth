@@ -63,8 +63,8 @@ class Puzzle:
         super().__init__()
 
         self.points = points
-        self.author = None
         self.summary = None
+        self.authors = []
         self.answers = []
         self.files = {}
         self.body = io.StringIO()
@@ -72,9 +72,10 @@ class Puzzle:
         self.randseed = category_seed * self.points
         self.rand = random.Random(self.randseed)
 
-    def log(self, msg):
+    def log(self, *vals):
         """Add a new log message to this puzzle."""
-        self.logs.append(str(msg))
+        msg = ' '.join(str(v) for v in vals)
+        self.logs.append(msg)
 
     def read_stream(self, stream):
         header = True
@@ -88,7 +89,7 @@ class Puzzle:
                 key = key.lower()
                 val = val.strip()
                 if key == 'author':
-                    self.author = val
+                    self.authors.append(val)
                 elif key == 'summary':
                     self.summary = val
                 elif key == 'answer':
@@ -234,6 +235,9 @@ class Puzzle:
         self.body.write('{:08x}\n'.format(offset))
         self.body.write('</pre>')
 
+    def get_authors(self):
+        return self.authors or [self.author]
+
     def get_body(self):
         return self.body.getvalue()
 
@@ -255,11 +259,10 @@ class Category:
         self.catmod = None
 
         if os.path.exists(os.path.join(path, 'category.py')):
-            self.catmod = importlib.machinery.SourceFileLoader(
-                'catmod',
-                os.path.join(path, 'category.py')).load_module()
-            self.pointvals.extend(self.catmod.points)
-            self.pointvals = self.catmod.points[:]
+            with pushd(path):
+                loader = importlib.machinery.SourceFileLoader('catmod', 'category.py')
+                self.catmod = loader.load_module()
+                self.pointvals.extend(self.catmod.points)
         else:
             for fpath in glob.glob(os.path.join(path, "[0-9]*")):
                 pn = os.path.basename(fpath)
