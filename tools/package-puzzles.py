@@ -133,6 +133,7 @@ def build_category(categorydir, outdir):
 
         puzzledict = {
             'authors': puzzle.authors,
+            'name': puzzle.name,
             'hashes': puzzle.hashes(),
             'files': files,
             'body': puzzle.html_body(),

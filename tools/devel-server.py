@@ -156,7 +156,12 @@ you are a fool.
             body.write("</ul>")
         elif len(parts) == 4:
             # Serve up a puzzle
-            title = "{} puzzle {}".format(parts[2], parts[3])
+            if puzzle.name:
+                title = '{} puzzle {} ({})'.format(parts[2], parts[3], puzzle.name)
+                body.write("<h2>Name</h2>")
+                body.write("<h3>{}</h3>".format(puzzle.name))
+            else:
+                title = "{} puzzle {}".format(parts[2], parts[3])
             body.write("<h2>Body</h2>")
             body.write(puzzle.html_body())
             body.write("<h2>Files</h2>")

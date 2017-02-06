@@ -71,6 +71,7 @@ class Puzzle:
 
         self.points = points
         self.summary = None
+        self.name = None
         self.authors = []
         self.answers = []
         self.files = {}
@@ -99,6 +100,8 @@ class Puzzle:
                     self.authors.append(val)
                 elif key == 'summary':
                     self.summary = val
+                elif key == 'name':
+                    self.name = val
                 elif key == 'answer':
                     self.answers.append(val)
                 elif key == 'file':
