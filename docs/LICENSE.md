@@ -43,6 +43,7 @@ notice.
 > software should be clearly marked, so as not to confuse it with the
 > version available from LANL.
 
+LANL has assigned the following identifiers to this code: LA-CC-11-006, and EAR99.
 
 Font Licenses
 =============
