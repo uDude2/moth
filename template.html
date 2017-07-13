@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset='utf-8'>
+    <meta name="viewport" content="width=device-width">
+    <!-- My stuff -->
+    <link rel="stylesheet" href="$stylesheet">
+    <link rel="icon" href="$icon">
+    <title>$title</title>
+  </head>
+
+  <body>
+    <h1 id="title">
+      <span>$title</span>
+    </h1>
+
+    <main id="content">
+$content
+    </main>
+
+    <footer>
+      <nav class="left">
+        <ul>
+          <li><a href="{{ '/' | relative_url }}" title="Homepage">Home</a></li>
+          <li><a href="{{ '/tartans/' | relative_url }}" title="AKA Plaids">Tartans</a></li>
+          <li><a href="{{ '/papers/' | relative_url }}" title="Various writings">Papers</a></li>
+        </ul>
+      </nav>
+    </footer>
+
+  </body>
+</html>
