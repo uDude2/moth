@@ -4,6 +4,7 @@ import string
 import time
 import webapp2
 import json
+import logging
 from google.appengine.ext import ndb
 
 
@@ -13,6 +14,7 @@ class Instance(ndb.Model):
     categories = ndb.StringProperty(repeated=True)
     teams = ndb.JsonProperty()
     events = ndb.JsonProperty()
+    messages = ndb.StringProperty(repeated=True)
 
 def get_instance(name):
     key = ndb.Key("Instance", name)
@@ -41,15 +43,20 @@ class Page:
               content="\n".join(self.content),
         )
 
+class MothRequestHandler(webapp2.RequestHandler):
+    def error(self, message, code=500):
+        response.write(message)
+        response.set_status(code)
 
-class Home(webapp2.RequestHandler):
+
+class Home(MothRequestHandler):
     def get(self):
         p = Page("Fire Home")
         p.write("Hello, webapp2!")
         self.response.write(p)
 
     
-class Register(webapp2.RequestHandler):
+class Register(MothRequestHandler):
     def get(self):
         p = Page("Teams")
         
@@ -58,30 +65,48 @@ class Register(webapp2.RequestHandler):
         p.write("</pre>")
 
 
-class Puzzler(webapp2.RequestHandler):
+class Puzzler(MothRequestHandler):
     pass
 
 
-
-class State(webapp2.RequestHandler):
+class State(MothRequestHandler):
+    """Dump instance state"""
     def get(self):
         instanceName = self.request.get("instance")
-        if not instanceName:
-            self.response.set_status(403)
-            self.response.write("No such instance")
-            return
         teamId = self.request.get("teamid")
+        if not instanceName or not teamId:
+            return self.error("Invalid Arguments", 403)
         instance = get_instance(instanceName)
         if not instance:
-            self.response.set_status(403)
-            self.response.write("No such instance")
-            return
+            return self.error("No such instance", 403)
         teamName = instance.teams.get(teamId)
         if not teamName:
-            self.response.set_status(403)
-            self.response.write("Team token is not on my list")
-            return
-        json.dump(instance.events, self.response)
+            return self.error("I don't recognize that team", 403)
+
+        teams = {}
+        nteams = 0
+        events = []
+        teamNames = []
+        for event in instance.events:
+            token = event[1]
+            teamNo = teams.get(token)
+            if teamNo is None:
+                teamNo = nteams
+                teams[token] = teamNo
+                teamNames.append(instance.teams[token])
+                nteams += 1
+            event[1] = teamNo
+            events.append(event)
+
+        bigObject = {
+            "name": instance.name,
+            "teams": teamNames,
+            "puzzles": "XXX: Complete this",
+            "events": events,
+            "messages": instance.messages,
+        }
+        json.dump(bigObject, self.response, separators=(',',':'))
+        self.response.content_type = "application/json"
 
 
 class Static(webapp2.RequestHandler):
