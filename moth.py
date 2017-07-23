@@ -1,16 +1,23 @@
 #! /usr/bin/python2
 
 import string
-import os
+import time
 import webapp2
-import google.appengine.api.memcache
-import google.appengine.ext.ndb
+import json
+from google.appengine.ext import ndb
 
-cache = google.appengine.api.memcache.Client()
 
 class Instance(ndb.Model):
+    enabled = ndb.BooleanProperty()
     name = ndb.StringProperty()
-    
+    categories = ndb.StringProperty(repeated=True)
+    teams = ndb.JsonProperty()
+    events = ndb.JsonProperty()
+
+def get_instance(name):
+    key = ndb.Key("Instance", name)
+    instance = key.get()
+    return key.get()
 
 class Page:
     def __init__(self, title, template="template.html"):
@@ -56,8 +63,25 @@ class Puzzler(webapp2.RequestHandler):
 
 
 
-class TokenRedeemer(webapp2.RequestHandler):
-    pass
+class State(webapp2.RequestHandler):
+    def get(self):
+        instanceName = self.request.get("instance")
+        if not instanceName:
+            self.response.set_status(403)
+            self.response.write("No such instance")
+            return
+        teamId = self.request.get("teamid")
+        instance = get_instance(instanceName)
+        if not instance:
+            self.response.set_status(403)
+            self.response.write("No such instance")
+            return
+        teamName = instance.teams.get(teamId)
+        if not teamName:
+            self.response.set_status(403)
+            self.response.write("Team token is not on my list")
+            return
+        json.dump(instance.events, self.response)
 
 
 class Static(webapp2.RequestHandler):
@@ -84,14 +108,32 @@ class Static(webapp2.RequestHandler):
 class Admin(webapp2.RequestHandler):
     def get(self):
         # For now, just fake a bunch of stuff
-        
+        pass
+
+class Debug(webapp2.RequestHandler):
+    def get(self):
+        name = "bubbles"
+        instance = get_instance(name)
+        if not instance:
+            self.response.write("<p>Making new instance</p>")
+            instance = Instance(id=name)
+            instance.name = name
+            instance.enabled = False
+            instance.categories = ["addition"]
+            instance.teams = {"a1b2c3d4": "Team Rabbit"}
+            instance.events = []
+        event = (int(time.time()), "a1b2c3d4", "addition", 58)
+        instance.events.append(event)
+        instance.put()
+        self.response.write(instance)
 
 app = webapp2.WSGIApplication(debug=True)
 app.router.add((r"/", Home))
 app.router.add((r"/register", Register))
 app.router.add((r"/puzzler", Puzzler))
-app.router.add((r"/token", TokenRedeemer))
+app.router.add((r"/state", State))
 app.router.add((r"/admin", Admin))
+app.router.add((r"/debug", Debug))
 app.router.add((r"/.+", Static))
 
 def main():
