@@ -2,21 +2,12 @@ runtime: python27
 api_version: 1
 threadsafe: true
 
-env_variables:
-  CLOUDSQL_CONNECTION_NAME: woozleworks-1138:us-west1:db1
-  CLOUDSQL_USER: moth
-  CLOUDSQL_PASSWORD: "6/x_/Pp5i4ip"
-  
-libraries:
-- name: MySQLdb
-  version: "latest"
-
 handlers:
-- url: /
-  static_dir: www
 - url: /register
   script: moth.app
 - url: /puzzler
   script: moth.app
 - url: /token
   script: moth.app
+- url: /
+  static_dir: www

@@ -1,5 +1,0 @@
-create table teams (teamhash VARCHAR(40), teamname VARCHAR(40) CHARACTER SET utf8);
-create table events (timestamp INTEGER, teamhash VARCHAR(40), category VARCHAR(40), points INTEGER, token VARCHAR(60));
-create table answers (category VARCHAR(40), points INTEGER, answer VARCHAR(120) CHARACTER SET utf8);
-create table tokens (category VARCHAR(40), points INTEGER, token VARCHAR(120) CHARACTER SET utf8);
-create table urls (category VARCHAR(40), points INTEGER, url VARCHAR(120));
