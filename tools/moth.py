@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+# -*- coding: utf-8 -*-
 
 import argparse
 import contextlib
@@ -216,11 +217,10 @@ class Puzzle:
         offset = 0
         elided = False
         lastchars = None
-        self.body.write('<pre>')
         for hexes, chars in out:
             if chars == lastchars:
                 if not elided:
-                    self.body.write('*\n')
+                    self.body.write('    *\n')
                     elided = True
                 continue
             lastchars = chars[:]
@@ -229,7 +229,7 @@ class Puzzle:
             pad = 16 - len(chars)
             hexes += ['  '] * pad
 
-            self.body.write('{:08x}  '.format(offset))
+            self.body.write('    {:08x}  '.format(offset))
             self.body.write(' '.join(hexes[:8]))
             self.body.write('  ')
             self.body.write(' '.join(hexes[8:]))
@@ -237,8 +237,7 @@ class Puzzle:
             self.body.write(''.join(chars))
             self.body.write('|\n')
             offset += len(chars)
-        self.body.write('{:08x}\n'.format(offset))
-        self.body.write('</pre>')
+        self.body.write('    {:08x}\n'.format(offset))
 
     def get_authors(self):
         return self.authors or [self.author]

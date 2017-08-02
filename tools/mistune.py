@@ -1,49 +1,17 @@
 # coding: utf-8
-"""mistune
+"""
+    mistune
     ~~~~~~~
 
     The fastest markdown parser in pure Python with renderer feature.
 
-    Copyright (c) 2014 - 2015, Hsiaoming Yang
-
-    All rights reserved.
-
-    Redistribution and use in source and binary forms, with or without
-    modification, are permitted provided that the following conditions
-    are met:
-
-    * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
-
-    * Redistributions in binary form must reproduce the above
-      copyright notice, this list of conditions and the following
-      disclaimer in the documentation and/or other materials provided
-      with the distribution.
-
-    * Neither the name of the creator nor the names of its
-      contributors may be used to endorse or promote products derived
-      from this software without specific prior written permission.
-
-
-    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
-    CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
-    INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-    DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS
-    BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
-    TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-    DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
-    ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
-    TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
-    THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
-    SUCH DAMAGE.
+    :copyright: (c) 2014 - 2017 by Hsiaoming Yang.
 """
 
 import re
 import inspect
 
-__version__ = '0.7.3'
+__version__ = '0.7.4'
 __author__ = 'Hsiaoming Yang <me@lepture.com>'
 __all__ = [
     'BlockGrammar', 'BlockLexer',
@@ -67,7 +35,7 @@ _inline_tags = [
 ]
 _pre_tags = ['pre', 'script', 'style']
 _valid_end = r'(?!:/|[^\w\s@]*@)\b'
-_valid_attr = r'''\s*[a-zA-Z\-](?:\=(?:"[^"]*"|'[^']*'|\d+))*'''
+_valid_attr = r'''\s*[a-zA-Z\-](?:\=(?:"[^"]*"|'[^']*'|[^\s'">]+))?'''
 _block_tag = r'(?!(?:%s)\b)\w+%s' % ('|'.join(_inline_tags), _valid_end)
 _scheme_blacklist = ('javascript:', 'vbscript:')
 
@@ -116,7 +84,6 @@ def escape_link(url):
 def preprocessing(text, tab=4):
     text = _newline_pattern.sub('\n', text)
     text = text.expandtabs(tab)
-    text = text.replace('\u00a0', ' ')
     text = text.replace('\u2424', '\n')
     pattern = re.compile(r'^ +$', re.M)
     return pattern.sub('', text)
@@ -335,7 +302,7 @@ class BlockLexer(object):
 
             rest = len(item)
             if i != length - 1 and rest:
-                _next = item[rest - 1] == '\n'
+                _next = item[rest-1] == '\n'
                 if not loose:
                     loose = _next
 
@@ -587,10 +554,8 @@ class InlineLexer(object):
                     return m, out
             return False  # pragma: no cover
 
-        self.line_started = False
         while text:
             ret = manipulate(text)
-            self.line_started = True
             if ret is not False:
                 m, out = ret
                 output += out
@@ -862,6 +827,8 @@ class Renderer(object):
 
         :param text: text content.
         """
+        if self.options.get('parse_block_html'):
+            return text
         return escape(text)
 
     def escape(self, text):
@@ -934,7 +901,7 @@ class Renderer(object):
         """
         html = (
             '<sup class="footnote-ref" id="fnref-%s">'
-            '<a href="#fn-%s" rel="footnote">%d</a></sup>'
+            '<a href="#fn-%s">%d</a></sup>'
         ) % (escape(key), escape(key), index)
         return html
 
@@ -945,7 +912,7 @@ class Renderer(object):
         :param text: text content of the footnote.
         """
         back = (
-            '<a href="#fnref-%s" rev="footnote">&#8617;</a>'
+            '<a href="#fnref-%s" class="footnote">&#8617;</a>'
         ) % escape(key)
         text = text.rstrip()
         if text.endswith('</p>'):

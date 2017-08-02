@@ -5,6 +5,7 @@
 # It's kludgy, but it gets the job done.
 # Feel free to make it suck less, for example using the `tcpserver` program.
 
+import cgi
 import glob
 import html
 import http.server
@@ -17,6 +18,7 @@ import shutil
 import socketserver
 import sys
 import traceback
+import urllib.parse
 
 try:
     from http.server import HTTPStatus
@@ -82,6 +84,16 @@ class MothHandler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(payload)
                     
     def do_GET(self):
+        querystring = urllib.parse.urlparse(self.path).query
+
+        self.form = cgi.FieldStorage(
+            fp=self.rfile,
+            environ={
+                "REQUEST_METHOD": "GET",
+                "QUERY_STRING": querystring,
+            }
+        )
+
         if self.path == "/":
             self.serve_front()
         elif self.path.startswith("/puzzles"):
@@ -121,13 +133,14 @@ you are a fool.
 
     def serve_puzzles(self):
         body = io.StringIO()
-        path = self.path.rstrip('/')
-        parts = path.split("/")
+        parsed = urllib.parse.urlparse(self.path)
+        parts = parsed.path.rstrip("/").split("/")
         title = None
         fpath = None
         points = None
         cat = None
         puzzle = None
+        catseed = seed
 
         try:
             fpath = os.path.join(self.puzzles_dir, parts[2])
@@ -135,8 +148,10 @@ you are a fool.
         except:
             pass
 
+        catseed = self.form.getfirst("seed", seed)
+        
         if fpath:
-            cat = moth.Category(fpath, seed)
+            cat = moth.Category(fpath, catseed)
         if points:
             puzzle = cat.puzzle(points)
 
@@ -242,7 +257,7 @@ you are a fool.
         self.wfile.write(payload)
 
 
-def run(address=('localhost', 8080), once=False):
+def run(address=('localhost', 5880), once=False):
     httpd = ThreadingServer(address, MothHandler)
     print("=== Listening on http://{}:{}/".format(address[0], address[1]))
     if once:
