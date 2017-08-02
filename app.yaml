@@ -1,0 +1,17 @@
+runtime: python27
+api_version: 1
+threadsafe: true
+
+handlers:
+- url: /register
+  script: moth.app
+- url: /puzzler
+  script: moth.app
+- url: /state
+  script: moth.app
+- url: /admin
+  script: moth.app
+- url: /debug
+  script: moth.app
+- url: /
+  static_dir: www
