@@ -16,7 +16,7 @@ Getting It Going
 
 If you can use docker, you are in luck:
 
-	docker run dirtbags/moth-devel -p 8080:8080
+	docker run --rm -t -p 8080:8080 dirtbags/moth-devel
 
 Gets you a development puzzle server running on port 8080,
 with the sample puzzle directory set up.
@@ -36,10 +36,6 @@ try this:
 Installing New Puzzles
 -----------------------------
 
-You are meant to have your puzzles checked out into a `puzzles`
-directory off the main MOTH directory.
-You can do most of your development on this living copy.
-
 The development server wants to see category directories under `puzzles`,
 like this:
 
@@ -57,16 +53,10 @@ like this:
 
 ### With Docker
 
-	docker run dirtbags/moth-devel -v /path/to/my/puzzles:/moth/puzzles:ro -p 8080:8080
+	docker run --rm -t -v /path/to/my/puzzles:/moth/puzzles:ro -p 8080:8080 dirtbags/moth-devel
 
 
 ### Without Docker
 
-In the directory containing `devel-server.py`, you would run something like:
-
-	git clone /path/to/my/puzzles-repository puzzles
-
-or on Unix:
-
-	ln -s /path/to/my/puzzles-repository puzzles
-
+You can use the `--puzzles` argument to `devel-server.py`
+to specify a path to your puzzles directory.
