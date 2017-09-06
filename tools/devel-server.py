@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#o/usr/bin/env python3
 
 # To pick up any changes to this file without restarting anything:
 #     while true; do ./tools/devel-server.py --once; done
@@ -242,7 +242,7 @@ you are a fool.
         self.wfile.write(payload)
 
 
-def run(address=('localhost', 8080), once=False):
+def run(address=('0.0.0.0', 8080), once=False):
     httpd = ThreadingServer(address, MothHandler)
     print("=== Listening on http://{}:{}/".format(address[0], address[1]))
     if once:
