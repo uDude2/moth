@@ -9,7 +9,9 @@ RUN mkdir -p /moth/src
 RUN cp -r moth/src/www /moth/src/www
 RUN cp -r moth/example-puzzles /moth/puzzles
 RUN cp -r moth/tools /moth/tools
-RUN rm -rf moth
+RUN rm -rf /usr/local/src/moth
+
+RUN apk --no-cache del git
 
 WORKDIR /moth
 ENTRYPOINT ["python3", "/moth/tools/devel-server.py"]

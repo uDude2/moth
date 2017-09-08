@@ -1,7 +1,4 @@
-Portions of this code (anything committed by an email address not
-ending with `@lanl.gov`, or by Neale and after June 2015) are
-Copyright © 2015-2016 Neale Pickett <neale@woozle.org>, and come with
-the following license (the so-called "MIT License").
+Copyright © 2015-2016 Neale Pickett <neale@woozle.org>
 
 > Permission is hereby granted, free of charge, to any person
 > obtaining a copy of this software and associated documentation files
@@ -23,27 +20,6 @@ the following license (the so-called "MIT License").
 > connection with the software or the use or other dealings in the
 > software.
 
-
-Portions of this software (everything in git committed before June
-2015, or from a @lanl.gov email address) come with the following
-notice. Please note that there is no assertion of copyright in this
-notice.
-
-> This software has been authored by an employee or employees of Los
-> Alamos National Security, LLC, operator of the Los Alamos National
-> Laboratory (LANL) under Contract No. DE-AC52-06NA25396 with the U.S.
-> Department of Energy.  The U.S. Government has rights to use,
-> reproduce, and distribute this software.  The public may copy,
-> distribute, prepare derivative works and publicly display this
-> software without charge, provided that this Notice and any statement
-> of authorship are reproduced on all copies.  Neither the Government
-> nor LANS makes any warranty, express or implied, or assumes any
-> liability or responsibility for the use of this software.  If
-> software is modified to produce derivative works, such modified
-> software should be clearly marked, so as not to confuse it with the
-> version available from LANL.
-
-LANL has assigned the following identifiers to this code: LA-CC-11-006, and EAR99.
 
 Font Licenses
 =============
