@@ -28,6 +28,7 @@ If you can't use docker,
 try this:
 
 	apt install python3
+	apt-get install lua5.3
 	git clone https://github.com/dirtbags/moth/
 	cd moth
 	./devel-server.py --puzzles example-puzzles
